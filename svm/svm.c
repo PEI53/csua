@@ -179,7 +179,9 @@ static void disasm(SVM_VirtualMachine* svm) {
             case SVM_MINUS_DOUBLE:
             case SVM_INCREMENT:
             case SVM_DECREMENT:
-            case SVM_INVOKE: {
+            case SVM_INVOKE:
+	    case SVM_JUMP:
+	    case SVM_CJUMP:{
 //                printf("%s\n", oinfo->opname);
                 add_opname(&dinfo, oinfo->opname);
                 break;
@@ -261,7 +263,7 @@ static void parse(uint8_t* buf, SVM_VirtualMachine* svm) {
 //                printf("DOUBLE\n");                
                 break;
             }
-            defulat: {
+            default: {
                 break;
             }
         }
@@ -723,6 +725,18 @@ static void svm_run(SVM_VirtualMachine* svm) {
                 }
                 break;
             }
+	    case SVM_JUMP:{
+	        svm->pc = pop_i(svm);
+		break;
+	    }
+	    case SVM_CJUMP:{
+	        uint8_t result = pop_i(svm);
+	        uint32_t jmp = pop_i(svm);
+		if(!result){
+		  svm->pc = jmp;
+		}
+		break;
+	    }
             case SVM_POP: {
                 pop_i(svm);
                 break;
